@@ -23,12 +23,17 @@ use PKP\security\Role;
 class SubmissionLimitPlugin extends GenericPlugin
 {
     // Roles that can create submissions
-    public const ALLOWED_ROLES = [
-        Role::ROLE_ID_MANAGER,
-        Role::ROLE_ID_SUB_EDITOR,
-        Role::ROLE_ID_ASSISTANT,
-    ];
+    /*public const ALLOWED_ROLES = [
+        Role::ROLE_ID_SITE_ADMIN,
+        //Role::ROLE_ID_MANAGER,
+        //Role::ROLE_ID_SUB_EDITOR,
+        //Role::ROLE_ID_ASSISTANT,
+    ];*/
 
+    public const ALLOWED_ROLES = [
+        Role::ROLE_ID_SITE_ADMIN
+      
+    ];
     /**
      * @copydoc Plugin::register()
      */
@@ -89,14 +94,30 @@ class SubmissionLimitPlugin extends GenericPlugin
     /**
      * Was the current request authenticated with an API key?
      */
+    
     protected function isApiKeyRequest($request): bool
     {
-        $router = $request->getRouter();
-        if (!($router instanceof APIRouter)) {
+        if (!($request->getRouter() instanceof APIRouter)) {
             return false;
         }
-        $handler = $router->getHandler();
-        return $handler && (bool) $handler->getApiToken();
+
+        $httpRequest = app(\Illuminate\Http\Request::class);
+        $authorization = $httpRequest->header('Authorization');
+
+        if ($authorization) {
+            foreach (explode(',', $authorization) as $clause) {
+                $parts = explode(' ', trim($clause));
+
+                if (count($parts) === 2 && $parts[0] === 'Bearer' && $parts[1] !== '') {
+                    return true;
+                }
+            }
+
+            // Wie in OJS: Ist der Header vorhanden, wird apiToken nicht verwendet.
+            return false;
+        }
+
+        return (string) $httpRequest->query('apiToken') !== '';
     }
 
     /**
