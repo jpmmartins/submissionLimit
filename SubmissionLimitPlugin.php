@@ -117,7 +117,7 @@ class SubmissionLimitPlugin extends GenericPlugin
             return false;
         }
 
-        return (string) $httpRequest->query('apiToken') !== '';
+        return (bool) $httpRequest->query('apiToken') !== '';
     }
 
     /**
