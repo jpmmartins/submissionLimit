@@ -112,8 +112,8 @@ class SubmissionLimitPlugin extends GenericPlugin
                     return true;
                 }
             }
-
-            // Wie in OJS: Ist der Header vorhanden, wird apiToken nicht verwendet.
+        
+            // If the Authorization header is present, the apiToken query parameter is ignored.
             return false;
         }
 
